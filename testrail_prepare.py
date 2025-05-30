@@ -33,11 +33,9 @@ TESTRAIL_TESTPLAN_ENTRY = {
         {
             "suite_id": 1,  # Thay bằng suite_id của bạn
             "include_all": True,
-            "config_ids": [6, 7, 8],  # Chrome, Firefox, Edge
+            "config_ids": [2],  # Chrome, Firefox, Edge
             "runs": [
-                {"include_all": True, "case_ids": [1], "config_ids": [6]},
-                {"include_all": True, "case_ids": [1], "config_ids": [7]},
-                {"include_all": True, "case_ids": [1], "config_ids": [8]}
+                {"include_all": True, "case_ids": [1], "config_ids": [2]}
             ]
         }
     ]
