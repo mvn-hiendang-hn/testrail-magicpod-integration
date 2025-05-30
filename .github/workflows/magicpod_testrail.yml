@@ -1,0 +1,44 @@
+name: MagicPod-TestRail Integration
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+      - name: Prepare TestRail test plan
+        env:
+          TESTRAIL_URL: ${{ secrets.TESTRAIL_URL }}
+          TESTRAIL_USER: ${{ secrets.TESTRAIL_USER }}
+          TESTRAIL_PASSWORD: ${{ secrets.TESTRAIL_PASSWORD }}
+          TESTRAIL_PROJECT_ID: 1
+          TESTRAIL_TESTPLAN_JSON_FILENAME: testplan.json
+        run: python testrail_prepare.py
+      - name: Install MagicPod API client
+        env:
+          MAGICPOD_API_TOKEN: ${{ secrets.MAGICPOD_API_TOKEN }}
+        run: bash download_magicpod_api_client.sh
+      - name: Run MagicPod tests
+        env:
+          MAGICPOD_API_TOKEN: ${{ secrets.MAGICPOD_API_TOKEN }}
+          MAGICPOD_ORGANIZATION_NAME: ${{ secrets.MAGICPOD_ORGANIZATION_NAME }}
+          MAGICPOD_PROJECT_NAME: ${{ secrets.MAGICPOD_PROJECT_NAME }}
+          MAGICPOD_TEST_SETTING_ID: ${{ secrets.MAGICPOD_TEST_SETTING_ID }}
+          TESTRAIL_TESTPLAN_JSON_FILENAME: testplan.json
+        run: python run_magicpod.py
+      - name: Upload test plan artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: testplan
+          path: testplan.json
