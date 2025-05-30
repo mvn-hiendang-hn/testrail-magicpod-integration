@@ -38,7 +38,7 @@ jobs:
           TESTRAIL_TESTPLAN_JSON_FILENAME: testplan.json
         run: python run_magicpod.py
       - name: Upload test plan artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: testplan
           path: testplan.json
