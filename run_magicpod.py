@@ -15,14 +15,23 @@ class MagicPodAPIWrapper:
         self.org_name = org_name
         self.project_name = project_name
 
-    def run_test(self, test_setting_id):
+    def run_test(self, test_setting_id, environment=None, browser=None):
         url = f"{self.base_url}/{self.org_name}/{self.project_name}/batch-run/"
         print(f"🚀 Starting MagicPod test: {url}")
+        
+        # Build the payload with required fields
+        payload = {
+            "test_setting_id": test_setting_id,
+            "environment": environment or os.getenv("MAGICPOD_ENVIRONMENT", "Android"),
+            "browser": browser or os.getenv("MAGICPOD_BROWSER", "Chrome")
+        }
+        
+        print(f"📋 Request payload: {json.dumps(payload, indent=2)}")
         
         response = requests.post(
             url,
             headers=self.headers,
-            json={"test_setting_id": test_setting_id},
+            json=payload,
             timeout=30
         )
         
@@ -140,9 +149,14 @@ def run_magicpod_tests():
     try:
         # Start MagicPod test execution
         test_setting_id = os.getenv("MAGICPOD_TEST_SETTING_ID")
-        print(f"🧪 Starting MagicPod test with setting ID: {test_setting_id}")
+        environment = os.getenv("MAGICPOD_ENVIRONMENT")
+        browser = os.getenv("MAGICPOD_BROWSER")
         
-        batch_run = magicpod.run_test(test_setting_id)
+        print(f"🧪 Starting MagicPod test with setting ID: {test_setting_id}")
+        print(f"🌍 Environment: {environment or 'Android (default)'}")
+        print(f"🌐 Browser: {browser or 'Chrome (default)'}")
+        
+        batch_run = magicpod.run_test(test_setting_id, environment, browser)
         batch_run_number = batch_run["batch_run_number"]
         print(f"📊 Batch run started: {batch_run_number}")
 
