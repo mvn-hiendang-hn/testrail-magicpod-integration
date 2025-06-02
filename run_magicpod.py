@@ -54,7 +54,7 @@ class MagicPodAPIWrapper:
         return response.json()
 
     def get_test_result(self, batch_run_number):
-        url = f"{self.base_url}/{self.org_name}/{self.project_name}/batch-runs/{batch_run_number}/"
+        url = f"{self.base_url}/{self.org_name}/{self.project_name}/batch-run/{batch_run_number}/"
         
         response = requests.get(url, headers=self.headers, timeout=30)
         
