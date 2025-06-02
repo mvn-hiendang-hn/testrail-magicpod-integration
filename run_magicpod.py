@@ -16,45 +16,44 @@ class MagicPodAPIWrapper:
         self.project_name = project_name
 
     def run_test(self, test_setting_id):
-    # Endpoint chính xác để chạy test MagicPod
-    url = f"{self.base_url}/{self.org_name}/{self.project_name}/test-settings/{test_setting_id}/batch-runs/"
-    print(f"🚀 Starting MagicPod test: {url}")
+        # Endpoint chính xác để chạy test MagicPod
+        url = f"{self.base_url}/{self.org_name}/{self.project_name}/test-settings/{test_setting_id}/batch-runs/"
+        print(f"🚀 Starting MagicPod test: {url}")
 
-    # Lấy giá trị từ biến môi trường
-    environment = os.getenv("MAGICPOD_ENVIRONMENT")
-    browser = os.getenv("MAGICPOD_BROWSER")
+        # Lấy giá trị từ biến môi trường
+        environment = os.getenv("MAGICPOD_ENVIRONMENT")
+        browser = os.getenv("MAGICPOD_BROWSER")
 
-    # Kiểm tra bắt buộc
-    if not environment or not browser:
-        raise ValueError(f"❌ Missing required fields: "
-                         f"{'MAGICPOD_ENVIRONMENT ' if not environment else ''}"
-                         f"{'MAGICPOD_BROWSER' if not browser else ''}")
+        # Kiểm tra bắt buộc
+        if not environment or not browser:
+            raise ValueError(f"❌ Missing required fields: "
+                             f"{'MAGICPOD_ENVIRONMENT ' if not environment else ''}"
+                             f"{'MAGICPOD_BROWSER' if not browser else ''}")
 
-    # Payload gửi đi
-    payload = {
-        "environment": environment,
-        "browser": browser
-    }
+        # Payload gửi đi
+        payload = {
+            "environment": environment,
+            "browser": browser
+        }
 
-    # Gửi request POST
-    response = requests.post(
-        url,
-        headers=self.headers,
-        json=payload,
-        timeout=30
-    )
+        # Gửi request POST
+        response = requests.post(
+            url,
+            headers=self.headers,
+            json=payload,
+            timeout=30
+        )
 
-    # Xử lý phản hồi
-    if not response.ok:
-        print(f"❌ Failed to start test: {response.status_code}")
-        print(f"Response: {response.text}")
-        response.raise_for_status()
+        # Xử lý phản hồi
+        if not response.ok:
+            print(f"❌ Failed to start test: {response.status_code}")
+            print(f"Response: {response.text}")
+            response.raise_for_status()
 
-    print("✅ MagicPod test execution triggered successfully!")
-    return response.json()
+        print("✅ MagicPod test execution triggered successfully!")
+        return response.json()
 
-
-def get_test_result(self, batch_run_number):
+    def get_test_result(self, batch_run_number):
         url = f"{self.base_url}/{self.org_name}/{self.project_name}/batch-runs/{batch_run_number}/"
         
         response = requests.get(url, headers=self.headers, timeout=30)
