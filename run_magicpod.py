@@ -15,32 +15,16 @@ class MagicPodAPIWrapper:
         self.org_name = org_name
         self.project_name = project_name
 
-    def run_test(self, test_setting_id, environment=None, browser=None):
+    def run_test(self, test_setting_id):
+        """
+        Run test with just test_setting_id first, then try with environment/browser if needed
+        """
         url = f"{self.base_url}/{self.org_name}/{self.project_name}/batch-run/"
         print(f"🚀 Starting MagicPod test: {url}")
         
-        # Get environment values and handle empty strings
-        env_value = environment or os.getenv("MAGICPOD_ENVIRONMENT")
-        browser_value = browser or os.getenv("MAGICPOD_BROWSER")
-        
-        # Clean up empty strings
-        if env_value == "":
-            env_value = None
-        if browser_value == "":
-            browser_value = None
-        
-        # Build the payload - only include fields that have valid values
-        payload = {
-            "test_setting_id": test_setting_id
-        }
-        
-        # Only add environment and browser if they have valid values
-        if env_value:
-            payload["environment"] = env_value
-        if browser_value:
-            payload["browser"] = browser_value
-        
-        print(f"📋 Request payload: {json.dumps(payload, indent=2)}")
+        # Try with minimal payload first
+        payload = {"test_setting_id": test_setting_id}
+        print(f"📋 Request payload (minimal): {json.dumps(payload, indent=2)}")
         
         response = requests.post(
             url,
@@ -48,6 +32,39 @@ class MagicPodAPIWrapper:
             json=payload,
             timeout=30
         )
+        
+        # If we get 400 with environment/browser required, try with those fields
+        if response.status_code == 400:
+            error_response = response.text
+            print(f"⚠️  Minimal payload failed: {error_response}")
+            
+            if "environment" in error_response or "browser" in error_response:
+                print("🔄 Retrying with environment and browser fields...")
+                
+                # Get environment values, with sensible defaults
+                env_value = os.getenv("MAGICPOD_ENVIRONMENT")
+                browser_value = os.getenv("MAGICPOD_BROWSER")
+                
+                # Use defaults if not set or empty
+                if not env_value or env_value.strip() == "":
+                    env_value = "Android"  # Common default
+                if not browser_value or browser_value.strip() == "":
+                    browser_value = "Chrome"  # Common default
+                
+                payload_with_env = {
+                    "test_setting_id": test_setting_id,
+                    "environment": env_value,
+                    "browser": browser_value
+                }
+                
+                print(f"📋 Request payload (with env/browser): {json.dumps(payload_with_env, indent=2)}")
+                
+                response = requests.post(
+                    url,
+                    headers=self.headers,
+                    json=payload_with_env,
+                    timeout=30
+                )
         
         if not response.ok:
             print(f"❌ Failed to start test: {response.status_code}")
@@ -163,14 +180,10 @@ def run_magicpod_tests():
     try:
         # Start MagicPod test execution
         test_setting_id = os.getenv("MAGICPOD_TEST_SETTING_ID")
-        environment = os.getenv("MAGICPOD_ENVIRONMENT")
-        browser = os.getenv("MAGICPOD_BROWSER")
         
         print(f"🧪 Starting MagicPod test with setting ID: {test_setting_id}")
-        print(f"🌍 Environment: {environment or 'Android (default)'}")
-        print(f"🌐 Browser: {browser or 'Chrome (default)'}")
         
-        batch_run = magicpod.run_test(test_setting_id, environment, browser)
+        batch_run = magicpod.run_test(test_setting_id)
         batch_run_number = batch_run["batch_run_number"]
         print(f"📊 Batch run started: {batch_run_number}")
 
