@@ -3,6 +3,7 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -18,27 +19,21 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests
+          pip install requests zipfile36
       
       - name: Prepare TestRail test plan
         env:
           TESTRAIL_URL: ${{ secrets.TESTRAIL_URL }}
           TESTRAIL_USER: ${{ secrets.TESTRAIL_USER }}
           TESTRAIL_PASSWORD: ${{ secrets.TESTRAIL_PASSWORD }}
-          TESTRAIL_PROJECT_ID: 1
+          TESTRAIL_PROJECT_ID: ${{ secrets.TESTRAIL_PROJECT_ID }}
           TESTRAIL_TESTPLAN_JSON_FILENAME: testplan.json
         run: python testrail_prepare.py
       
-      - name: Download MagicPod API client (Python method)
+      - name: Download MagicPod API client
         env:
           MAGICPOD_API_TOKEN: ${{ secrets.MAGICPOD_API_TOKEN }}
         run: python download_magicpod_client.py
-      
-      # Alternative: Download MagicPod API client (Enhanced bash method)
-      # - name: Download MagicPod API client (Bash method)
-      #   env:
-      #     MAGICPOD_API_TOKEN: ${{ secrets.MAGICPOD_API_TOKEN }}
-      #   run: bash download_magicpod_api_client.sh
       
       - name: Run MagicPod tests
         env:
@@ -49,12 +44,17 @@ jobs:
           TESTRAIL_URL: ${{ secrets.TESTRAIL_URL }}
           TESTRAIL_USER: ${{ secrets.TESTRAIL_USER }}
           TESTRAIL_PASSWORD: ${{ secrets.TESTRAIL_PASSWORD }}
+          TESTRAIL_PROJECT_ID: ${{ secrets.TESTRAIL_PROJECT_ID }}
           TESTRAIL_TESTPLAN_JSON_FILENAME: testplan.json
         run: python run_magicpod.py
       
-      - name: Upload test plan artifact
+      - name: Upload test results
         uses: actions/upload-artifact@v4
-        if: always()  # Upload even if tests fail
+        if: always()
         with:
-          name: testplan
-          path: testplan.json
+          name: test-results
+          path: |
+            testplan.json
+            *.log
+            magicpod-api-client/
+          retention-days: 30
