@@ -15,7 +15,7 @@ class MagicPodAPIWrapper:
         self.org_name = org_name
         self.project_name = project_name
 
-def run_test(self, test_setting_id):
+    def run_test(self, test_setting_id):
     # Endpoint chính xác để chạy test MagicPod
     url = f"{self.base_url}/{self.org_name}/{self.project_name}/test-settings/{test_setting_id}/batch-runs/"
     print(f"🚀 Starting MagicPod test: {url}")
