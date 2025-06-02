@@ -29,10 +29,16 @@ jobs:
           TESTRAIL_TESTPLAN_JSON_FILENAME: testplan.json
         run: python testrail_prepare.py
       
-      - name: Install MagicPod API client
+      - name: Download MagicPod API client (Python method)
         env:
           MAGICPOD_API_TOKEN: ${{ secrets.MAGICPOD_API_TOKEN }}
-        run: bash download_magicpod_api_client.sh
+        run: python download_magicpod_client.py
+      
+      # Alternative: Download MagicPod API client (Enhanced bash method)
+      # - name: Download MagicPod API client (Bash method)
+      #   env:
+      #     MAGICPOD_API_TOKEN: ${{ secrets.MAGICPOD_API_TOKEN }}
+      #   run: bash download_magicpod_api_client.sh
       
       - name: Run MagicPod tests
         env:
