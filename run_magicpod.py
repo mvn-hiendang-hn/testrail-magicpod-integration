@@ -16,7 +16,7 @@ class MagicPodAPIWrapper:
         self.project_name = project_name
 
     def run_test(self, test_setting_id):
-        url = f"{self.base_url}/{self.org_name}/{self.project_name}/batch-runs/"
+        url = f"{self.base_url}/{self.org_name}/{self.project_name}/batch-run/"
         print(f"🚀 Starting MagicPod test: {url}")
         
         response = requests.post(
