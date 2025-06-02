@@ -19,12 +19,26 @@ class MagicPodAPIWrapper:
         url = f"{self.base_url}/{self.org_name}/{self.project_name}/batch-run/"
         print(f"🚀 Starting MagicPod test: {url}")
         
-        # Build the payload with required fields
+        # Get environment values and handle empty strings
+        env_value = environment or os.getenv("MAGICPOD_ENVIRONMENT")
+        browser_value = browser or os.getenv("MAGICPOD_BROWSER")
+        
+        # Clean up empty strings
+        if env_value == "":
+            env_value = None
+        if browser_value == "":
+            browser_value = None
+        
+        # Build the payload - only include fields that have valid values
         payload = {
-            "test_setting_id": test_setting_id,
-            "environment": environment or os.getenv("MAGICPOD_ENVIRONMENT", "Android"),
-            "browser": browser or os.getenv("MAGICPOD_BROWSER", "Chrome")
+            "test_setting_id": test_setting_id
         }
+        
+        # Only add environment and browser if they have valid values
+        if env_value:
+            payload["environment"] = env_value
+        if browser_value:
+            payload["browser"] = browser_value
         
         print(f"📋 Request payload: {json.dumps(payload, indent=2)}")
         
