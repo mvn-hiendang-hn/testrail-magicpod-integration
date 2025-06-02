@@ -15,25 +15,46 @@ class MagicPodAPIWrapper:
         self.org_name = org_name
         self.project_name = project_name
 
-    def run_test(self, test_setting_id):
-        url = f"{self.base_url}/{self.org_name}/{self.project_name}/batch-run/"
-        print(f"🚀 Starting MagicPod test: {url}")
-        
-        response = requests.post(
-            url,
-            headers=self.headers,
-            json={"test_setting_id": test_setting_id},
-            timeout=30
-        )
-        
-        if not response.ok:
-            print(f"❌ Failed to start test: {response.status_code}")
-            print(f"Response: {response.text}")
-            response.raise_for_status()
-        
-        return response.json()
+def run_test(self, test_setting_id):
+    # Endpoint chính xác để chạy test MagicPod
+    url = f"{self.base_url}/{self.org_name}/{self.project_name}/test-settings/{test_setting_id}/batch-runs/"
+    print(f"🚀 Starting MagicPod test: {url}")
 
-    def get_test_result(self, batch_run_number):
+    # Lấy giá trị từ biến môi trường
+    environment = os.getenv("MAGICPOD_ENVIRONMENT")
+    browser = os.getenv("MAGICPOD_BROWSER")
+
+    # Kiểm tra bắt buộc
+    if not environment or not browser:
+        raise ValueError(f"❌ Missing required fields: "
+                         f"{'MAGICPOD_ENVIRONMENT ' if not environment else ''}"
+                         f"{'MAGICPOD_BROWSER' if not browser else ''}")
+
+    # Payload gửi đi
+    payload = {
+        "environment": environment,
+        "browser": browser
+    }
+
+    # Gửi request POST
+    response = requests.post(
+        url,
+        headers=self.headers,
+        json=payload,
+        timeout=30
+    )
+
+    # Xử lý phản hồi
+    if not response.ok:
+        print(f"❌ Failed to start test: {response.status_code}")
+        print(f"Response: {response.text}")
+        response.raise_for_status()
+
+    print("✅ MagicPod test execution triggered successfully!")
+    return response.json()
+
+
+def get_test_result(self, batch_run_number):
         url = f"{self.base_url}/{self.org_name}/{self.project_name}/batch-runs/{batch_run_number}/"
         
         response = requests.get(url, headers=self.headers, timeout=30)
