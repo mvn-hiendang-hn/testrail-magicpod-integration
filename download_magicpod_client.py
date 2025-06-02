@@ -23,7 +23,7 @@ def download_magicpod_client():
         'User-Agent': 'MagicPod-GitHub-Action/1.0'
     }
     
-    download_url = 'https://app.magicpod.com/api/v1.0/client/'
+    download_url = 'https://app.magicpod.com/api/v1.0/magicpod-clients/api/mac/latest/'
     
     try:
         print(f"📡 Downloading from: {download_url}")
